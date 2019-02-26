@@ -22,6 +22,12 @@ DecEq Nat where
                            Yes Refl => Yes Refl
                            No contra => No $ \Refl => contra Refl
 
+Uninhabited (S k = Z) where
+  uninhabited Refl impossible
+
+Uninhabited (Z = S k) where
+  uninhabited Refl impossible
+
 -- Num instances
 
 infixl 8 .+.
