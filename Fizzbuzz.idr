@@ -206,3 +206,38 @@ minusPlusCancels n Z LTEZ = sym $ plusRightZero _
 minusPlusCancels (S n) (S m) (LTES prevPrf) = rewrite plusRightS (n `minus` m) m in
                                               rewrite minusPlusCancels n m prevPrf in
                                               Refl
+
+-- Helpers
+
+NotZero : (n : Nat) -> Type
+NotZero n = Not (n = Z)
+
+%hint
+sNotZero : NotZero (S k)
+sNotZero = uninhabited
+
+-- Division
+
+data Div : (n, d, q, r : Nat) -> Type where
+  MkDiv : (eqPrf : q * d + r = n) -> (lessPrf : r `LT` d) -> Div n d q r
+
+divide' : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
+divide' {notZero} n d with (n `lt` d)
+  | Yes lessPrf = (0 ** n ** MkDiv Refl lessPrf)
+  | No contra = let LTES dnPrf = invertLte _ _ contra
+                    (q ** r ** MkDiv eqPrf lessPrf) = assert_total $ divide' {notZero} (n `minus` d) d
+                    in (S q ** r ** MkDiv (stepEqPrf q r dnPrf eqPrf) lessPrf)
+    where
+      stepEqPrf : (q, r : Nat) -> (dnPrf : LTE d n) -> (eqPrf : q * d + r = minus n d) -> (S q) * d + r = n
+      stepEqPrf q r dnPrf eqPrf = rewrite sym $ leftPart in
+                                  rewrite sym $ minusPlusCancels n d dnPrf in
+                                  plusRightPreservesEq _ _ d eqPrf
+        where
+          leftPart : (q * d + r) + d = (S q) * d + r
+          leftPart =
+            ((q * d + r) + d) ={ plusAssocSym (q * d) r d }=
+            (q * d + (r + d)) ={ cong $ plusCommutes r d }=
+            (q * d + (d + r)) ={ plusAssoc (q * d) d r }=
+            ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
+            ((d + q * d) + r) ={ Refl }=
+            ((S q) * d + r) QED
