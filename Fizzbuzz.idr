@@ -241,3 +241,21 @@ divide' {notZero} n d with (n `lt` d)
             ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
             ((d + q * d) + r) ={ Refl }=
             ((S q) * d + r) QED
+
+data Remainder : (n, d, r : Nat) -> Type where
+  MkRemainder : (q : Nat) -> (prf : Div n d q r) -> Remainder n d r
+
+data Output = OutFizz
+            | OutBuzz
+            | OutFizzBuzz
+            | OutNum Nat
+
+infixl 9 .|.
+(.|.) : Nat -> Nat -> Type
+r .|. n = Remainder n r 0
+
+data OutVerified : Nat -> Output -> Type where
+  MkOutFizz     : (n : Nat) -> (prf3 : 3 .|.n)         -> (nprf5 : Not (5 .|. n)) -> OutVerified n OutFizz
+  MkOutBuzz     : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (prf5 : 5 .|. n)        -> OutVerified n OutBuzz
+  MkOutFizzBuzz : (n : Nat) -> (prf3 : 3 .|. n)        -> (prf5 : 5 .|. n)        -> OutVerified n OutFizzBuzz
+  MkOutNum      : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (nprf5 : Not (5 .|. n)) -> OutVerified n (OutNum n)
