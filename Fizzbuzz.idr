@@ -242,8 +242,17 @@ divide' {notZero} n d with (n `lt` d)
             ((d + q * d) + r) ={ Refl }=
             ((S q) * d + r) QED
 
+divEqualR : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> r = r'
+
 data Remainder : (n, d, r : Nat) -> Type where
   MkRemainder : (q : Nat) -> (prf : Div n d q r) -> Remainder n d r
+
+decRem : (n, d, r : Nat) -> (notZero : NotZero d) -> Dec (Remainder n d r)
+decRem n d r notZero =
+  let (q' ** r' ** div') = divide' {notZero} n d in
+  case decEq r r' of
+       Yes Refl => Yes (MkRemainder q' div')
+       No contra => No (\(MkRemainder q div) => void $ contra $ divEqualR div div')
 
 data Output = OutFizz
             | OutBuzz
@@ -259,3 +268,10 @@ data OutVerified : Nat -> Output -> Type where
   MkOutBuzz     : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (prf5 : 5 .|. n)        -> OutVerified n OutBuzz
   MkOutFizzBuzz : (n : Nat) -> (prf3 : 3 .|. n)        -> (prf5 : 5 .|. n)        -> OutVerified n OutFizzBuzz
   MkOutNum      : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (nprf5 : Not (5 .|. n)) -> OutVerified n (OutNum n)
+
+fizzbuzz : (n : Nat) -> (out ** OutVerified n out)
+fizzbuzz n with (decRem n 3 0 sNotZero, decRem n 5 0 sNotZero)
+  | (Yes div3, Yes div5) = (_ ** MkOutFizzBuzz n div3 div5)
+  | (Yes div3, No ndiv5) = (_ ** MkOutFizz n div3 ndiv5)
+  | (No ndiv3, Yes div5) = (_ ** MkOutBuzz n ndiv3 div5)
+  | (No ndiv3, No ndiv5) = (_ ** MkOutNum n ndiv3 ndiv5)
