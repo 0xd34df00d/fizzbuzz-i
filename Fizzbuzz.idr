@@ -74,10 +74,6 @@ plusLeftPreservesEq n n k Refl = Refl
 plusRightPreservesEq : (n, m, k : Nat) -> n = m -> n + k = m + k
 plusRightPreservesEq n n k Refl = Refl
 
-plusTossS : (n, m : Nat) -> n + S m = S n + m
-plusTossS Z m = Refl
-plusTossS (S n) m = cong $ plusTossS n m
-
 -- Multiplication
 
 timesLeftOne : (n : Nat) -> n = 1 * n
@@ -211,9 +207,9 @@ minusPlusCancels (S n) (S m) (LTES prevPrf) = rewrite plusRightS (n `minus` m) m
                                               rewrite minusPlusCancels n m prevPrf in
                                               Refl
 
-minusS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) m = S (minus n m)
-minusS { prf = LTEZ } n Z = Refl
-minusS { prf = LTES _ } (S n) (S m) = minusS n m
+minusS : (n, m : Nat) -> (prf1 : m `LTE` n) -> (prf2 : m `LTE` S n) -> minus (S n) m = S (minus n m)
+minusS n Z LTEZ LTEZ = Refl
+minusS (S n) (S m) (LTES prevPrf1) (LTES prevPrf2) = minusS n m prevPrf1 prevPrf2
 
 minusSS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) (S m) = minus n m
 minusSS { prf = LTEZ } n Z = Refl
@@ -223,20 +219,24 @@ proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus { prf = prf1 } n m 
 proofIrrelevanceForMinus LTEZ LTEZ = Refl
 proofIrrelevanceForMinus (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
 
-minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto prf2 : k `LTE` S n + m } -> minus (n + S m) k = minus (S n + m) k
-minusPlusTossS { prf1 } n m k =
-  let n__Sr_eq_Sn__m = plusTossS n m
-      prf1' = replace n__Sr_eq_Sn__m prf1
-  in ?wut
+minusReflLeft : { n1, n2, m : Nat } -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) -> (prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
+minusReflLeft Refl LTEZ LTEZ = Refl
+minusReflLeft Refl (LTES prev1) (LTES prev2) = minusReflLeft Refl prev1 prev2
 
-plusMinusAssoc : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + m } -> { auto prf2 : k `LTE` m } -> minus (n + m) k = n + (m `minus` k)
+minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto prf2 : k `LTE` S n + m } -> minus (n + S m) k = minus (S n + m) k
+minusPlusTossS {prf1} {prf2} n m k = minusReflLeft (plusRightS n m) prf1 prf2
+
+plusMinusAssoc : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + m } -> { auto prf2 : k `LTE` m } -> (n + m) `minus` k = n + (m `minus` k)
 plusMinusAssoc { prf1 = LTEZ } { prf2 = LTEZ } n m Z = Refl
-plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } Z (S r) (S l) = proofIrrelevanceForMinus prevPrf1 prevPrf2
-plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S r) (S l) =
-  let rec = plusMinusAssoc { prf1 = lteWeaken n prevPrf2 } n r l
-      n_plus_Sr_eq_Sn_plus_r = plusTossS n r
-      in
-  ?wut2
+plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } Z (S m) (S k) = proofIrrelevanceForMinus prevPrf1 prevPrf2
+plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S m) (S k) =
+  let l_lte_nr = lteWeaken n prevPrf2
+      l_lte_S_nr = lteWeakenS l_lte_nr
+  in
+  ((n + S m) `minus` k)   ={ minusPlusTossS n m k }=
+  ((S n + m) `minus` k)   ={ minusS (n + m) k (lteWeaken n prevPrf2) l_lte_S_nr }=
+  (S ((n + m) `minus` k)) ={ cong $ plusMinusAssoc n m k }=
+  (S (n + (m `minus` k))) QED
 
 -- Helpers
 
