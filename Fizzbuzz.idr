@@ -74,6 +74,10 @@ plusLeftPreservesEq n n k Refl = Refl
 plusRightPreservesEq : (n, m, k : Nat) -> n = m -> n + k = m + k
 plusRightPreservesEq n n k Refl = Refl
 
+plusTossS : (n, m : Nat) -> n + S m = S n + m
+plusTossS Z m = Refl
+plusTossS (S n) m = cong $ plusTossS n m
+
 -- Multiplication
 
 timesLeftOne : (n : Nat) -> n = 1 * n
@@ -207,6 +211,33 @@ minusPlusCancels (S n) (S m) (LTES prevPrf) = rewrite plusRightS (n `minus` m) m
                                               rewrite minusPlusCancels n m prevPrf in
                                               Refl
 
+minusS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) m = S (minus n m)
+minusS { prf = LTEZ } n Z = Refl
+minusS { prf = LTES _ } (S n) (S m) = minusS n m
+
+minusSS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) (S m) = minus n m
+minusSS { prf = LTEZ } n Z = Refl
+minusSS { prf = LTES prevPrf } (S n) (S m) = Refl
+
+proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus { prf = prf1 } n m = minus { prf = prf2 } n m
+proofIrrelevanceForMinus LTEZ LTEZ = Refl
+proofIrrelevanceForMinus (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
+
+minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto prf2 : k `LTE` S n + m } -> minus (n + S m) k = minus (S n + m) k
+minusPlusTossS { prf1 } n m k =
+  let n__Sr_eq_Sn__m = plusTossS n m
+      prf1' = replace n__Sr_eq_Sn__m prf1
+  in ?wut
+
+plusMinusAssoc : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + m } -> { auto prf2 : k `LTE` m } -> minus (n + m) k = n + (m `minus` k)
+plusMinusAssoc { prf1 = LTEZ } { prf2 = LTEZ } n m Z = Refl
+plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } Z (S r) (S l) = proofIrrelevanceForMinus prevPrf1 prevPrf2
+plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S r) (S l) =
+  let rec = plusMinusAssoc { prf1 = lteWeaken n prevPrf2 } n r l
+      n_plus_Sr_eq_Sn_plus_r = plusTossS n r
+      in
+  ?wut2
+
 -- Helpers
 
 NotZero : (n : Nat) -> Type
@@ -241,6 +272,22 @@ divide' {notZero} n d with (n `lt` d)
             ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
             ((d + q * d) + r) ={ Refl }=
             ((S q) * d + r) QED
+
+lemma1 : { auto prf : r `LTE` r' } -> k + r = k' + r' -> k' + (r' `minus` r) = k
+lemma1 prf = ?lemma1_rhs
+
+divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
+divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
+  let r'_minus_r = r' `minus` r
+      eqPrf = trans eqPrf1 $ sym eqPrf2
+  in ?divEqualQBase_rhs
+
+divEqualQ : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
+divEqualQ {r} {r'} div1 div2 =
+  case r `lte` r' of
+       Yes prf => divEqualQBase _ _ _ _ _ _ prf div1 div2
+       No contra => let inv = ltWeakenLte _ _ $ invertLte _ _ contra
+                    in sym $ divEqualQBase _ _ _ _ _ _ inv div2 div1
 
 divEqualR : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> r = r'
 
