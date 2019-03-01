@@ -273,8 +273,20 @@ divide' {notZero} n d with (n `lt` d)
             ((d + q * d) + r) ={ Refl }=
             ((S q) * d + r) QED
 
-lemma1 : { auto prf : r `LTE` r' } -> k + r = k' + r' -> k' + (r' `minus` r) = k
-lemma1 prf = ?lemma1_rhs
+lemma1 : (k, r, k', r' : Nat) -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r -> k' + (r' `minus` r) = k
+lemma1 k r k' r' {ltePrf} eqPrf =
+  let r_lte_kr' = lteWeaken k ltePrf
+      r_lte_kr'' = lteWeaken k' ltePrf
+      r_lte_kr = lteWeaken k $ lteRefl r
+  in
+  (k' + (r' `minus` r)) ={ sym $ plusMinusAssoc k' r' r }=
+  ((k' + r') `minus` r) ={ minusReflLeft eqPrf r_lte_kr'' r_lte_kr }=
+  ((k + r) `minus` r) ={ sub k r r_lte_kr }=
+  (k + Z) ={ sym $ plusRightZero k }=
+  (k) QED
+  where
+    sub : (k, r : Nat) -> (prf : r `LTE` k + r) -> (k + r) `minus` r = k + Z
+    sub k r prf = rewrite plusMinusAssoc k r r in rewrite minusSelf r in Refl
 
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
