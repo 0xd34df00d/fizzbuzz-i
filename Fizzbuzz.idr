@@ -176,12 +176,6 @@ invertLte (S l) (S r) contra = let rec = invertLte l r (\prf => contra $ LTES pr
 ltWeakenLte : (l, r : Nat) -> l `LT` r -> l `LTE` r
 ltWeakenLte l r prf = let LTES prev = lteWeakenS prf in prev
 
--- Inequality and sum
-
-summandLTEsum : (n, m : Nat) -> m `LTE` n + m
-summandLTEsum Z m = lteRefl m
-summandLTEsum (S n) m = lteWeakenS $ summandLTEsum n m
-
 -- Safe subtraction
 
 minus : (n, m : Nat) -> { auto prf : m `LTE` n } -> Nat
@@ -196,9 +190,9 @@ minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> minus (S n) m = S (min
 minusSLeftCommutes n Z LTEZ = Refl
 minusSLeftCommutes (S r) (S l) (LTES prevPrf) = minusSLeftCommutes r l prevPrf
 
-plusMinusCancels : (n, m : Nat) -> minus { prf = summandLTEsum _ _ } (n + m) m = n
+plusMinusCancels : (n, m : Nat) -> minus { prf = lteWeaken n $ lteRefl m } (n + m) m = n
 plusMinusCancels Z m = minusSelf m
-plusMinusCancels (S n) m = rewrite minusSLeftCommutes (n + m) m (summandLTEsum n m) in
+plusMinusCancels (S n) m = rewrite minusSLeftCommutes (n + m) m (lteWeaken n $ lteRefl m) in
                            rewrite plusMinusCancels n m in Refl
 
 minusPlusCancels : (n, m : Nat) -> (prf : m `LTE` n) -> (n `minus` m) + m = n
