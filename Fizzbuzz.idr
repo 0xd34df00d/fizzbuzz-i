@@ -176,6 +176,11 @@ invertLte (S l) (S r) contra = let rec = invertLte l r (\prf => contra $ LTES pr
 ltWeakenLte : (l, r : Nat) -> l `LT` r -> l `LTE` r
 ltWeakenLte l r prf = let LTES prev = lteWeakenS prf in prev
 
+-- Inequality and plus
+
+summandLTEsum : (n, m : Nat) -> m `LTE` n + m
+summandLTEsum n m = lteWeaken n $ lteRefl m
+
 -- Safe subtraction
 
 minus : (n, m : Nat) -> { auto prf : m `LTE` n } -> Nat
@@ -271,7 +276,7 @@ lemma1 : (k, r, k', r' : Nat) -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r
 lemma1 k r k' r' {ltePrf} eqPrf =
   let r_lte_kr' = lteWeaken k ltePrf
       r_lte_kr'' = lteWeaken k' ltePrf
-      r_lte_kr = lteWeaken k $ lteRefl r
+      r_lte_kr = summandLTEsum k r
   in
   (k' + (r' `minus` r)) ={ sym $ plusMinusAssoc k' r' r }=
   ((k' + r') `minus` r) ={ minusReflLeft eqPrf r_lte_kr'' r_lte_kr }=
