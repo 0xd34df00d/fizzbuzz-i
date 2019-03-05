@@ -278,8 +278,8 @@ divide' {notZero} n d with (n `lt` d)
             ((d + q * d) + r) ={ Refl }=
             ((S q) * d + r) QED
 
-lemma1 : (k, r, k', r' : Nat) -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r -> k' + (r' `minus` r) = k
-lemma1 k r k' r' {ltePrf} eqPrf =
+lemma1 : { k, r, k', r' : Nat } -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r -> k' + (r' `minus` r) = k
+lemma1 {k} {r} {k'} {r'} {ltePrf} eqPrf =
   let r_lte_kr' = lteWeaken k ltePrf
       r_lte_kr'' = lteWeaken k' ltePrf
       r_lte_kr = summandLTEsum k r
