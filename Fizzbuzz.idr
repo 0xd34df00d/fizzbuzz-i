@@ -47,6 +47,11 @@ Num Nat where
                      then Z
                      else S $ fromInteger $ assert_smaller k (k - 1)
 
+-- Basic Nat properties
+
+sInjective : (prf : S n = S m) -> n = m
+sInjective Refl = Refl
+
 -- Addition
 
 plusRightZero : (n : Nat) -> n = n + Z
@@ -296,6 +301,21 @@ lemma1 {k} {r} {k'} {r'} {ltePrf} eqPrf =
   where
     sub : (k, r : Nat) -> (prf : r `LTE` k + r) -> (k + r) `minus` r = k + Z
     sub k r prf = rewrite plusMinusAssoc k r r in rewrite minusSelf r in Refl
+
+lemma_k_less_summands : (s, l, r : Nat) -> (eqPrf : s = l + r) -> l `LTE` s
+lemma_k_less_summands s Z r prf = LTEZ
+lemma_k_less_summands Z (S _) _ Refl impossible
+lemma_k_less_summands (S (l + r)) (S l) r Refl = LTES $ lemma_k_less_summands (l + r) l r Refl
+
+lemma2 : (k, r, k', r' : Nat) -> (eqPrf : k + r = k' + r') -> (ltePrf : r `LTE` r') -> k' `LTE` k
+lemma2 k Z k' r' eqPrf LTEZ = lemma_k_less_summands k k' r' $ trans (plusRightZero k) eqPrf
+lemma2 k (S r) k' (S r') eqPrf (LTES prevPrf) = lemma2 k r k' r' (sub eqPrf) prevPrf
+  where
+    sub : (eqPrf : k + S r = k' + S r') -> k + r = k' + r'
+    sub prf = sInjective $ (S (k + r)) ={ sym $ plusRightS k r }=
+                           (k + S r) ={ eqPrf }=
+                           (k' + S r') ={ plusRightS k' r' }=
+                           (S (k' + r')) QED
 
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
