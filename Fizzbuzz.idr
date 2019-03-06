@@ -132,6 +132,15 @@ timesAssoc (S n) m k = rewrite timesAssoc n m k in
                        rewrite sym $ timesDistrRight m (n * m) k in
                        Refl
 
+-- Helpers
+
+NotZero : (n : Nat) -> Type
+NotZero n = Not (n = Z)
+
+%hint
+sNotZero : NotZero (S k)
+sNotZero = uninhabited
+
 
 -- Inequality
 
@@ -189,6 +198,16 @@ summandLTEsum n m = lteWeaken n $ lteRefl m
 sumLTEcancelLeft : {n1, n2 : Nat} -> (m : Nat) -> (prf : m + n1 `LTE` m + n2) -> n1 `LTE` n2
 sumLTEcancelLeft Z prf = prf
 sumLTEcancelLeft (S m) (LTES prevPrf) = sumLTEcancelLeft m prevPrf
+
+-- Inequality and multiplication
+
+multLTEcancelRight : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : n1 * m `LTE` n2 * m) -> n1 `LTE` n2
+multLTEcancelRight _ _ Z notZero _ = absurd $ notZero Refl
+multLTEcancelRight Z _ _ _ _ = LTEZ
+multLTEcancelRight (S n1) Z (S m) _ ltePrf = ?wut_1
+multLTEcancelRight (S n1) (S n2) (S m) _ (LTES prevPrf) = let prf' = sumLTEcancelLeft m prevPrf in ?wut_2
+
+multLTEcancelLeft : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : m * n1 `LTE` m * n2) -> n1 `LTE` n2
 
 -- Safe subtraction
 
@@ -251,15 +270,6 @@ plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S m) (S 
   ((S n + m) `minus` k)   ={ minusS (n + m) k (lteWeaken n prevPrf2) l_lte_S_nr }=
   (S ((n + m) `minus` k)) ={ cong $ plusMinusAssoc n m k }=
   (S (n + (m `minus` k))) QED
-
--- Helpers
-
-NotZero : (n : Nat) -> Type
-NotZero n = Not (n = Z)
-
-%hint
-sNotZero : NotZero (S k)
-sNotZero = uninhabited
 
 -- Division
 
