@@ -181,6 +181,10 @@ ltWeakenLte l r prf = let LTES prev = lteWeakenS prf in prev
 summandLTEsum : (n, m : Nat) -> m `LTE` n + m
 summandLTEsum n m = lteWeaken n $ lteRefl m
 
+sumLTEcancelLeft : {n1, n2 : Nat} -> (m : Nat) -> (prf : m + n1 `LTE` m + n2) -> n1 `LTE` n2
+sumLTEcancelLeft Z prf = prf
+sumLTEcancelLeft (S m) (LTES prevPrf) = sumLTEcancelLeft m prevPrf
+
 -- Safe subtraction
 
 minus : (n, m : Nat) -> { auto prf : m `LTE` n } -> Nat
