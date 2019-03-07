@@ -327,6 +327,11 @@ lemma2 k (S r) k' (S r') eqPrf (LTES prevPrf) = lemma2 k r k' r' (sub eqPrf) pre
                            (k' + S r') ={ plusRightS k' r' }=
                            (S (k' + r')) QED
 
+lemmaN : (n, m : Nat) -> (nzPrf : NotZero m) -> (ltePrf : n * m `LT` m) -> n = 0
+lemmaN Z _ _ _ = Refl
+lemmaN (S n) Z nzPrf ltePrf = absurd $ nzPrf Refl
+lemmaN (S n) (S m) _ (LTES ltePrf) = ?lemmaN_rhs
+
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
   let r'_minus_r = r' `minus` r
