@@ -332,11 +332,24 @@ lemmaN Z _ _ _ = Refl
 lemmaN (S n) Z nzPrf ltePrf = absurd $ nzPrf Refl
 lemmaN (S n) (S m) _ (LTES ltePrf) = ?lemmaN_rhs
 
+-- qd + r = q'd + r'
+-- q'd + (r' - r) = qd                   -- r <= r' so q'd <= qd so (qd - q'd) is legit
+-- (q'd + (r' - r)) - q'd = qd - q'd
+-- (q'd - q'd) + (r' - r) = qd - q'd
+-- r' - r = qd - q'd
+-- r' - r = (q - q')d
+-- q - q' = 0                            -- r' < d hence r' - r < d hence (q - q')d < d hence q - q' = 0
+
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
-  let r'_minus_r = r' `minus` r
-      eqPrf = trans eqPrf1 $ sym eqPrf2
-  in ?divEqualQBase_rhs
+  let
+    ltePrf1 : (q' * d `LTE` (q' * d + (r' `minus` r)))                        = rewrite plusCommutes (q' * d) (r' `minus` r) in lteWeaken (r' `minus` r) $ lteRefl (q' * d)
+    step1 : (q' * d + r' = q * d + r)                                         = sym $ trans eqPrf1 $ sym eqPrf2
+    ltePrf2 : (q' * d `LTE` q * d)                                            = lemma2 _ _ _ _ (sym step1) rPrf
+    step2 : (q' * d + (r' `minus` r) = q * d)                                 = lemma1 step1
+    step3 : ((q' * d + (r' `minus` r)) `minus` q' * d = q * d `minus` q' * d) = minusReflLeft step2 ltePrf1 ltePrf2
+    step4 : (r' `minus` r = q * d `minus` q' * d)                             = trans (sym $ plusMinusCancelsLeft (q' * d) (r' `minus` r)) step3
+  in ?meh
 
 divEqualQ : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQ {r} {r'} div1 div2 =
