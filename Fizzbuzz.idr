@@ -176,6 +176,10 @@ lteWeaken : (k : Nat) -> l `LTE` r -> l `LTE` k + r
 lteWeaken Z prf = prf
 lteWeaken (S k) prf = lteWeakenS $ lteWeaken k prf
 
+Uninhabited (S k `LTE` Z) where
+  uninhabited LTEZ impossible
+  uninhabited (LTES _) impossible
+
 LT : (l, r : Nat) -> Type
 LT l r = LTE (S l) r
 
