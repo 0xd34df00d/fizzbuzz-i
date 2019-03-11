@@ -208,10 +208,17 @@ sumLTEcancelLeft (S m) (LTES prevPrf) = sumLTEcancelLeft m prevPrf
 multLTEcancelRight : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : n1 * m `LTE` n2 * m) -> n1 `LTE` n2
 multLTEcancelRight _ _ Z notZero _ = absurd $ notZero Refl
 multLTEcancelRight Z _ _ _ _ = LTEZ
-multLTEcancelRight (S n1) Z (S m) _ ltePrf = ?wut_1
-multLTEcancelRight (S n1) (S n2) (S m) _ (LTES prevPrf) = let prf' = sumLTEcancelLeft m prevPrf in ?wut_2
+multLTEcancelRight (S n1) Z (S m) _ ltePrf = absurd ltePrf
+multLTEcancelRight (S n1) (S n2) (S m) notZero (LTES prevPrf) =
+  let sumPrf = sumLTEcancelLeft {n1 = n1 * S m} {n2 = n2 * S m} m prevPrf
+      rec = multLTEcancelRight n1 n2 (S m) notZero sumPrf
+  in LTES rec
 
 multLTEcancelLeft : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : m * n1 `LTE` m * n2) -> n1 `LTE` n2
+multLTEcancelLeft n1 n2 m notZero ltePrf =
+  multLTEcancelRight _ _ _ notZero $
+    replace (timesCommutes m n2) $
+    replace { P = (`LTE` m * n2) } (timesCommutes m n1) ltePrf
 
 -- Safe subtraction
 
