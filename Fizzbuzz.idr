@@ -219,7 +219,7 @@ minusSelf : (n : Nat) -> n `minus` n = 0
 minusSelf Z = Refl
 minusSelf (S n) = minusSelf n
 
-minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> minus (S n) m = S (minus n m)
+minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> S n `minus` m = S (n `minus` m)
 minusSLeftCommutes n Z LTEZ = Refl
 minusSLeftCommutes (S r) (S l) (LTES prevPrf) = minusSLeftCommutes r l prevPrf
 
@@ -245,13 +245,13 @@ minusReflLeft : { n1, n2, m : Nat } -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) 
 minusReflLeft Refl LTEZ LTEZ = Refl
 minusReflLeft Refl (LTES prev1) (LTES prev2) = minusReflLeft Refl prev1 prev2
 
-plusMinusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n + m } -> minus (n + m) m = n
+plusMinusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n + m } -> n + m `minus` m = n
 plusMinusCancelsRight {prf = LTEZ} n Z = sym $ plusRightZero n
 plusMinusCancelsRight {prf} n (S m) =
   rewrite minusReflLeft (plusRightS n m) prf (LTES $ summandLTEsum n m)
   in plusMinusCancelsRight { prf = summandLTEsum n m } n m
 
-plusMinusCancelsLeft : (n, m : Nat) -> { auto prf : n `LTE` n + m } -> minus (n + m) n = m
+plusMinusCancelsLeft : (n, m : Nat) -> { auto prf : n `LTE` n + m } -> n + m `minus` n = m
 plusMinusCancelsLeft {prf} n m =
   rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
   in plusMinusCancelsRight m n
