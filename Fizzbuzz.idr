@@ -289,6 +289,18 @@ plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S m) (S 
   (S ((n + m) `minus` k)) ={ cong $ plusMinusAssoc n m k }=
   (S (n + (m `minus` k))) QED
 
+timesMinusDistrRight : (n1, n2, m : Nat) -> { auto ltePrf1 : n2 * m `LTE` n1 * m } -> { auto ltePrf2 : n2 `LTE` n1 } -> n1 * m `minus` n2 * m = (n1 `minus` n2) * m
+timesMinusDistrRight {ltePrf1} {ltePrf2} n1 n2 m =
+  let
+    step1   : (((n1 `minus` n2) + n2) * m = (n1 `minus` n2) * m + n2 * m)            = timesDistrRight (n1 `minus` n2) n2 m
+    step2   : (((n1 `minus` n2) + n2) * m = n1 * m)                                  = cong {f = (* m)} $ minusPlusCancelsRight n1 n2
+    step3   : (n1 * m = (n1 `minus` n2) * m + n2 * m)                                = sym step2 `trans` step1
+    ltePrf3 : (n2 * m `LTE` (n1 `minus` n2) * m + n2 * m)                            = summandLTEsum ((n1 `minus` n2) * m) (n2 * m)
+    step4   : ((n1 `minus` n2) * m + n2 * m `minus` n2 * m = (n1 `minus` n2) * m)    = plusMinusCancelsRight ((n1 `minus` n2) * m) (n2 * m)
+    step5   : (n1 * m `minus` n2 * m = (n1 `minus` n2) * m + n2 * m `minus` n2 * m)  = minusReflLeft step3 ltePrf1 ltePrf3
+    step6   : (n1 * m `minus` n2 * m = (n1 `minus` n2) * m)                          = step5 `trans` step4
+  in step6
+
 -- Division
 
 data Div : (n, d, q, r : Nat) -> Type where
