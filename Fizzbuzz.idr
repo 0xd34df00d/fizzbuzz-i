@@ -267,6 +267,13 @@ plusMinusCancelsLeft {prf} n m =
   rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
   in plusMinusCancelsRight m n
 
+minusPlusCancelsLeft : (n, m : Nat) -> { auto prf : m `LTE` n } -> m + (n `minus` m) = n
+minusPlusCancelsLeft { prf = LTEZ } n Z = Refl
+minusPlusCancelsLeft { prf = LTES prevPrf } (S n) (S m) = cong $ minusPlusCancelsLeft n m
+
+minusPlusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) + m = n
+minusPlusCancelsRight n m = plusCommutes (n `minus` m) m `trans` minusPlusCancelsLeft n m
+
 minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto prf2 : k `LTE` S n + m } -> minus (n + S m) k = minus (S n + m) k
 minusPlusTossS {prf1} {prf2} n m k = minusReflLeft (plusRightS n m) prf1 prf2
 
