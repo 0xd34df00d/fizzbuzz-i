@@ -240,6 +240,10 @@ minusSelf : (n : Nat) -> n `minus` n = 0
 minusSelf Z = Refl
 minusSelf (S n) = minusSelf n
 
+minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n } -> (prf : n `minus` m = 0) -> n = m
+minusCoself { ltePrf = LTEZ } n Z prf = prf
+minusCoself { ltePrf = LTES prevPrf } (S n) (S m) prf = cong $ minusCoself n m prf
+
 minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> S n `minus` m = S (n `minus` m)
 minusSLeftCommutes n Z LTEZ = Refl
 minusSLeftCommutes (S r) (S l) (LTES prevPrf) = minusSLeftCommutes r l prevPrf
