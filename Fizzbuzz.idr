@@ -258,6 +258,12 @@ minusSS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) (S m) = minus 
 minusSS { prf = LTEZ } n Z = Refl
 minusSS { prf = LTES prevPrf } (S n) (S m) = Refl
 
+minusPreservesLTE : (l, r, n : Nat) -> { auto minusLTEprf : n `LTE` l } -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
+minusPreservesLTE { minusLTEprf = LTEZ } _ _ Z ltePrf = ltePrf
+minusPreservesLTE { minusLTEprf = LTES prevPrf } (S l) r (S n) ltePrf =
+  let LTES prevLTEprf = lteWeakenS ltePrf
+  in minusPreservesLTE l r n prevLTEprf
+
 proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus { prf = prf1 } n m = minus { prf = prf2 } n m
 proofIrrelevanceForMinus LTEZ LTEZ = Refl
 proofIrrelevanceForMinus (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
