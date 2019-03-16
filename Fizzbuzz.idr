@@ -377,29 +377,29 @@ lemma2 k (S r) k' (S r') eqPrf (LTES prevPrf) = lemma2 k r k' r' (sub eqPrf) pre
                            (k' + S r') ={ plusRightS k' r' }=
                            (S (k' + r')) QED
 
-lemmaN : (n, m : Nat) -> (nzPrf : NotZero m) -> (ltePrf : n * m `LT` m) -> n = 0
-lemmaN Z _ _ _ = Refl
-lemmaN (S n) Z nzPrf ltePrf = absurd $ nzPrf Refl
-lemmaN (S n) (S m) _ (LTES ltePrf) = ?lemmaN_rhs
-
--- qd + r = q'd + r'
--- q'd + (r' - r) = qd                   -- r <= r' so q'd <= qd so (qd - q'd) is legit
--- (q'd + (r' - r)) - q'd = qd - q'd
--- (q'd - q'd) + (r' - r) = qd - q'd
--- r' - r = qd - q'd
--- r' - r = (q - q')d
--- q - q' = 0                            -- r' < d hence r' - r < d hence (q - q')d < d hence q - q' = 0
+lemma3 : (n, m : Nat) -> (nzPrf : NotZero m) -> (ltePrf : n * m `LT` m) -> n = 0
+lemma3 Z _ _ _ = Refl
+lemma3 (S n) Z nzPrf ltePrf = absurd $ nzPrf Refl
+lemma3 (S n) (S m) _ (LTES ltePrf) = ?wut
 
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
   let
+    dNonZero : (NotZero d)                                                       = ltImpliesNonZero lessPrf1
     ltePrf1  : (q' * d `LTE` (q' * d + (r' `minus` r)))                          = rewrite plusCommutes (q' * d) (r' `minus` r) in lteWeaken (r' `minus` r) $ lteRefl (q' * d)
     step1    : (q' * d + r' = q * d + r)                                         = sym $ trans eqPrf1 $ sym eqPrf2
     ltePrf2  : (q' * d `LTE` q * d)                                              = lemma2 _ _ _ _ (sym step1) rPrf
     step2    : (q' * d + (r' `minus` r) = q * d)                                 = lemma1 (q * d) r (q' * d) r' step1
     step3    : ((q' * d + (r' `minus` r)) `minus` q' * d = q * d `minus` q' * d) = minusReflLeft step2 ltePrf1 ltePrf2
     step4    : (r' `minus` r = q * d `minus` q' * d)                             = trans (sym $ plusMinusCancelsLeft (q' * d) (r' `minus` r)) step3
-  in ?meh
+    ltePrf3  : (q' `LTE` q)                                                      = multLTEcancelRight _ _ _ dNonZero ltePrf2
+    step5    : (r' `minus` r = (q `minus` q') * d)                               = step4 `trans` timesMinusDistrRight q q' d
+    step6    : (((S r') `minus` r) `LTE` d)                                      = minusPreservesLTE (S r') d r lessPrf2
+    step7    : ((r' `minus` r) `LT` d)                                           = lteCongLeft (minusSLeftCommutes _ _ rPrf) step6
+    step8    : (((q `minus` q') * d) `LT` d)                                     = lteCongLeft (cong step5) step7
+    step9    : ((q `minus` q') = 0)                                              = lemma3 _ _ dNonZero step8
+    step10   : (q = q')                                                          = minusCoself _ _ step9
+  in step10
 
 divEqualQ : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQ {r} {r'} div1 div2 =
