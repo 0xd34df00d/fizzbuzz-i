@@ -176,6 +176,12 @@ lteWeaken : (k : Nat) -> l `LTE` r -> l `LTE` k + r
 lteWeaken Z prf = prf
 lteWeaken (S k) prf = lteWeakenS $ lteWeaken k prf
 
+lteCongRight : { l, r1, r2 : Nat } -> (prf : r1 = r2) -> l `LTE` r1 -> l `LTE` r2
+lteCongRight Refl ltePrf = ltePrf
+
+lteCongLeft : { l1, l2, r : Nat } -> (prf : l1 = l2) -> l1 `LTE` r -> l2 `LTE` r
+lteCongLeft Refl ltePrf = ltePrf
+
 Uninhabited (S k `LTE` Z) where
   uninhabited LTEZ impossible
   uninhabited (LTES _) impossible
@@ -193,6 +199,10 @@ invertLte (S l) (S r) contra = let rec = invertLte l r (\prf => contra $ LTES pr
 
 ltWeakenLte : (l, r : Nat) -> l `LT` r -> l `LTE` r
 ltWeakenLte l r prf = let LTES prev = lteWeakenS prf in prev
+
+ltImpliesNonZero : {l, r : Nat} -> l `LT` r -> NotZero r
+ltImpliesNonZero {r = Z} ltePrf eqPrf = uninhabited ltePrf
+ltImpliesNonZero {r = S r} ltePrf eqPrf = uninhabited eqPrf
 
 -- Inequality and plus
 
