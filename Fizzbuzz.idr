@@ -370,26 +370,29 @@ minusNonZeroIsLT : (n, m : Nat) -> { auto prf : m `LTE` n } -> (notZero : NotZer
 minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
 minusNonZeroIsLT {prf = LTES prevPrf} (S r) (S m) notZero = LTES $ minusIsLTE r m
 
-divide' : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
-divide' {notZero} n d with (n `lt` d)
-  | Yes lessPrf = (0 ** n ** MkDiv Refl lessPrf)
-  | No contra = let LTES dnPrf = invertLte _ _ contra
-                    (q ** r ** MkDiv eqPrf lessPrf) = assert_total $ divide' {notZero} (n `minus` d) d
+divide : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
+divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
+  where
+    st : (x : Nat) -> ((y : Nat) -> LTChecked y x -> (q ** r ** Div y d q r)) -> (q ** r ** Div x d q r)
+    st x next with (x `lt` d)
+      | Yes lessPrf = (0 ** x ** MkDiv Refl lessPrf)
+      | No contra = let LTES dnPrf = invertLte _ _ contra
+                        (q ** r ** MkDiv eqPrf lessPrf) = next (x `minus` d) (MkLTChecked $ minusNonZeroIsLT x d notZero)
                     in (S q ** r ** MkDiv (stepEqPrf q r dnPrf eqPrf) lessPrf)
-    where
-      stepEqPrf : (q, r : Nat) -> (dnPrf : LTE d n) -> (eqPrf : q * d + r = minus n d) -> (S q) * d + r = n
-      stepEqPrf q r dnPrf eqPrf = rewrite sym $ leftPart in
-                                  rewrite sym $ minusPlusCancels n d dnPrf in
-                                  plusRightPreservesEq _ _ d eqPrf
-        where
-          leftPart : (q * d + r) + d = (S q) * d + r
-          leftPart =
-            ((q * d + r) + d) ={ plusAssocSym (q * d) r d }=
-            (q * d + (r + d)) ={ cong $ plusCommutes r d }=
-            (q * d + (d + r)) ={ plusAssoc (q * d) d r }=
-            ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
-            ((d + q * d) + r) ={ Refl }=
-            ((S q) * d + r) QED
+      where
+        stepEqPrf : (q, r : Nat) -> (dnPrf : LTE d x) -> (eqPrf : q * d + r = minus x d) -> (S q) * d + r = x
+        stepEqPrf q r dnPrf eqPrf = rewrite sym $ leftPart in
+                                    rewrite sym $ minusPlusCancels x d dnPrf in
+                                    plusRightPreservesEq _ _ d eqPrf
+          where
+            leftPart : (q * d + r) + d = (S q) * d + r
+            leftPart =
+              ((q * d + r) + d) ={ plusAssocSym (q * d) r d }=
+              (q * d + (r + d)) ={ cong $ plusCommutes r d }=
+              (q * d + (d + r)) ={ plusAssoc (q * d) d r }=
+              ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
+              ((d + q * d) + r) ={ Refl }=
+              ((S q) * d + r) QED
 
 lemma1 : (k, r, k', r' : Nat) -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r -> k' + (r' `minus` r) = k
 lemma1 k r k' r' {ltePrf} eqPrf =
@@ -466,7 +469,7 @@ data Remainder : (n, d, r : Nat) -> Type where
 
 decRem : (n, d, r : Nat) -> (notZero : NotZero d) -> Dec (Remainder n d r)
 decRem n d r notZero =
-  let (q' ** r' ** div') = divide' {notZero} n d in
+  let (q' ** r' ** div') = divide {notZero} n d in
   case decEq r r' of
        Yes Refl => Yes (MkRemainder q' div')
        No contra => No (\(MkRemainder q div) => void $ contra $ divEqualR div div')
