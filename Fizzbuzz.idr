@@ -362,6 +362,14 @@ WellFounded LTChecked where
                  let Access rec = wellFounded {rel = LTChecked} x
                  in rec y' $ MkLTChecked $ lteTrans _ _ _ prf prevPrf
 
+minusIsLTE : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) `LTE` n
+minusIsLTE { prf = LTEZ } n Z = lteRefl n
+minusIsLTE { prf = LTES prevPrf } (S n) (S m) = lteWeakenS $ minusIsLTE n m
+
+minusNonZeroIsLT : (n, m : Nat) -> { auto prf : m `LTE` n } -> (notZero : NotZero m) -> (n `minus` m) `LT` n
+minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
+minusNonZeroIsLT {prf = LTES prevPrf} (S r) (S m) notZero = LTES $ minusIsLTE r m
+
 divide' : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
 divide' {notZero} n d with (n `lt` d)
   | Yes lessPrf = (0 ** n ** MkDiv Refl lessPrf)
