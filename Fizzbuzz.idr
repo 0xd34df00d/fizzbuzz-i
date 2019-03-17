@@ -79,6 +79,10 @@ plusLeftPreservesEq n n k Refl = Refl
 plusRightPreservesEq : (n, m, k : Nat) -> n = m -> n + k = m + k
 plusRightPreservesEq n n k Refl = Refl
 
+plusCancelsLeft : (n : Nat) -> n + k1 = n + k2 -> k1 = k2
+plusCancelsLeft Z prf = prf
+plusCancelsLeft (S n) prf = plusCancelsLeft n (sInjective prf)
+
 -- Multiplication
 
 timesLeftOne : (n : Nat) -> n = 1 * n
