@@ -119,7 +119,7 @@ timesDistrLeft n m (S k) = rewrite timesDistrLeft n m k in
     shuffleLemma n m kn km =
       ((n + m) + (kn + km)) ={ plusAssocSym n m (kn + km) }=
       (n + (m + (kn + km))) ={ cong $ plusAssoc m kn km }=
-      (n + ((m + kn) + km)) ={ cong { f = \x => n + (x + km) } $ plusCommutes m kn }=
+      (n + ((m + kn) + km)) ={ cong {f = \x => n + (x + km)} $ plusCommutes m kn }=
       (n + ((kn + m) + km)) ={ cong $ plusAssocSym kn m km }=
       (n + (kn + (m + km))) ={ plusAssoc n kn (m + km) }=
       ((n + kn) + (m + km)) QED
@@ -243,21 +243,21 @@ multLTEcancelLeft : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : m * 
 multLTEcancelLeft n1 n2 m notZero ltePrf =
   multLTEcancelRight _ _ _ notZero $
     replace (timesCommutes m n2) $
-    replace { P = (`LTE` m * n2) } (timesCommutes m n1) ltePrf
+    replace {P = (`LTE` m * n2)} (timesCommutes m n1) ltePrf
 
 -- Safe subtraction
 
 minus : (n, m : Nat) -> { auto prf : m `LTE` n } -> Nat
-minus { prf = LTEZ } n Z = n
-minus { prf = LTES prevPrf } (S n) (S m) = minus n m
+minus {prf = LTEZ} n Z = n
+minus {prf = LTES prevPrf} (S n) (S m) = minus n m
 
 minusSelf : (n : Nat) -> n `minus` n = 0
 minusSelf Z = Refl
 minusSelf (S n) = minusSelf n
 
 minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n } -> (prf : n `minus` m = 0) -> n = m
-minusCoself { ltePrf = LTEZ } n Z prf = prf
-minusCoself { ltePrf = LTES prevPrf } (S n) (S m) prf = cong $ minusCoself n m prf
+minusCoself {ltePrf = LTEZ} n Z prf = prf
+minusCoself {ltePrf = LTES prevPrf} (S n) (S m) prf = cong $ minusCoself n m prf
 
 minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> S n `minus` m = S (n `minus` m)
 minusSLeftCommutes n Z LTEZ = Refl
@@ -274,12 +274,12 @@ minusS n Z LTEZ LTEZ = Refl
 minusS (S n) (S m) (LTES prevPrf1) (LTES prevPrf2) = minusS n m prevPrf1 prevPrf2
 
 minusSS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) (S m) = minus n m
-minusSS { prf = LTEZ } n Z = Refl
-minusSS { prf = LTES prevPrf } (S n) (S m) = Refl
+minusSS {prf = LTEZ} n Z = Refl
+minusSS {prf = LTES prevPrf} (S n) (S m) = Refl
 
 minusPreservesLTE : (l, r, n : Nat) -> { auto minusLTEprf : n `LTE` l } -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
-minusPreservesLTE { minusLTEprf = LTEZ } _ _ Z ltePrf = ltePrf
-minusPreservesLTE { minusLTEprf = LTES prevPrf } (S l) r (S n) ltePrf =
+minusPreservesLTE {minusLTEprf = LTEZ} _ _ Z ltePrf = ltePrf
+minusPreservesLTE {minusLTEprf = LTES prevPrf} (S l) r (S n) ltePrf =
   let LTES prevLTEprf = lteWeakenS ltePrf
   in minusPreservesLTE l r n prevLTEprf
 
@@ -295,7 +295,7 @@ plusMinusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n + m } -> n + m `m
 plusMinusCancelsRight {prf = LTEZ} n Z = sym $ plusRightZero n
 plusMinusCancelsRight {prf} n (S m) =
   rewrite minusReflLeft (plusRightS n m) prf (LTES $ summandLTEsum n m)
-  in plusMinusCancelsRight { prf = summandLTEsum n m } n m
+  in plusMinusCancelsRight {prf = summandLTEsum n m} n m
 
 plusMinusCancelsLeft : (n, m : Nat) -> { auto prf : n `LTE` n + m } -> n + m `minus` n = m
 plusMinusCancelsLeft {prf} n m =
@@ -303,8 +303,8 @@ plusMinusCancelsLeft {prf} n m =
   in plusMinusCancelsRight m n
 
 minusPlusCancelsLeft : (n, m : Nat) -> { auto prf : m `LTE` n } -> m + (n `minus` m) = n
-minusPlusCancelsLeft { prf = LTEZ } n Z = Refl
-minusPlusCancelsLeft { prf = LTES prevPrf } (S n) (S m) = cong $ minusPlusCancelsLeft n m
+minusPlusCancelsLeft {prf = LTEZ} n Z = Refl
+minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong $ minusPlusCancelsLeft n m
 
 minusPlusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) + m = n
 minusPlusCancelsRight n m = plusCommutes (n `minus` m) m `trans` minusPlusCancelsLeft n m
@@ -313,9 +313,9 @@ minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto pr
 minusPlusTossS {prf1} {prf2} n m k = minusReflLeft (plusRightS n m) prf1 prf2
 
 plusMinusAssoc : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + m } -> { auto prf2 : k `LTE` m } -> (n + m) `minus` k = n + (m `minus` k)
-plusMinusAssoc { prf1 = LTEZ } { prf2 = LTEZ } n m Z = Refl
-plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } Z (S m) (S k) = proofIrrelevanceForMinus prevPrf1 prevPrf2
-plusMinusAssoc { prf1 = LTES prevPrf1 } { prf2 = LTES prevPrf2 } (S n) (S m) (S k) =
+plusMinusAssoc {prf1 = LTEZ} {prf2 = LTEZ} n m Z = Refl
+plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} Z (S m) (S k) = proofIrrelevanceForMinus prevPrf1 prevPrf2
+plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} (S n) (S m) (S k) =
   let l_lte_nr = lteWeaken n prevPrf2
       l_lte_S_nr = lteWeakenS l_lte_nr
   in
@@ -363,8 +363,8 @@ WellFounded LTChecked where
                  in rec y' $ MkLTChecked $ lteTrans _ _ _ prf prevPrf
 
 minusIsLTE : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) `LTE` n
-minusIsLTE { prf = LTEZ } n Z = lteRefl n
-minusIsLTE { prf = LTES prevPrf } (S n) (S m) = lteWeakenS $ minusIsLTE n m
+minusIsLTE {prf = LTEZ} n Z = lteRefl n
+minusIsLTE {prf = LTES prevPrf} (S n) (S m) = lteWeakenS $ minusIsLTE n m
 
 minusNonZeroIsLT : (n, m : Nat) -> { auto prf : m `LTE` n } -> (notZero : NotZero m) -> (n `minus` m) `LT` n
 minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
@@ -390,7 +390,7 @@ divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
               ((q * d + r) + d) ={ plusAssocSym (q * d) r d }=
               (q * d + (r + d)) ={ cong $ plusCommutes r d }=
               (q * d + (d + r)) ={ plusAssoc (q * d) d r }=
-              ((q * d + d) + r) ={ cong { f = \x => x + r } $ plusCommutes (q * d) d }=
+              ((q * d + d) + r) ={ cong {f = \x => x + r} $ plusCommutes (q * d) d }=
               ((d + q * d) + r) ={ Refl }=
               ((S q) * d + r) QED
 
