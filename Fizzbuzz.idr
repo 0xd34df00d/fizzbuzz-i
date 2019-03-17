@@ -338,6 +338,27 @@ timesMinusDistrRight {ltePrf1} {ltePrf2} n1 n2 m =
 data Div : (n, d, q, r : Nat) -> Type where
   MkDiv : (eqPrf : q * d + r = n) -> (lessPrf : r `LT` d) -> Div n d q r
 
+data LTChecked : Nat -> Nat -> Type where
+  MkLTChecked : (ltPrf : x `LT` y) -> LTChecked x y
+
+zeroIsAccessible : Accessible LTChecked Z
+zeroIsAccessible = Access f
+  where
+    f : (y : Nat) -> LTChecked y Z -> Accessible LTChecked y
+    f _ (MkLTChecked LTEZ) impossible
+    f _ (MkLTChecked (LTES _)) impossible
+
+WellFounded LTChecked where
+  wellFounded Z = zeroIsAccessible
+  wellFounded (S x) = Access f
+    where
+      f : (y : Nat) -> LTChecked y (S x) -> Accessible LTChecked y
+      f Z _ = zeroIsAccessible
+      f (S y) (MkLTChecked (LTES prevPrf)) =
+        Access $ \y', (MkLTChecked prf) =>
+                 let Access rec = wellFounded {rel = LTChecked} x
+                 in rec y' $ MkLTChecked $ lteTrans _ _ _ prf prevPrf
+
 divide' : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
 divide' {notZero} n d with (n `lt` d)
   | Yes lessPrf = (0 ** n ** MkDiv Refl lessPrf)
