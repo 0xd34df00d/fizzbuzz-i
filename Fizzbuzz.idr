@@ -194,6 +194,10 @@ Uninhabited (S k `LTE` Z) where
   uninhabited LTEZ impossible
   uninhabited (LTES _) impossible
 
+lteTrans : (a, b, c : Nat) -> a `LTE` b -> b `LTE` c -> a `LTE` c
+lteTrans Z _ _ _ _ = LTEZ
+lteTrans (S a) (S b) (S c) (LTES prev_lte_ab) (LTES prev_lte_bc) = LTES $ lteTrans a b c prev_lte_ab prev_lte_bc
+
 LT : (l, r : Nat) -> Type
 LT l r = LTE (S l) r
 
