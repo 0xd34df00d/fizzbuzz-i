@@ -388,7 +388,7 @@ lemma2 k (S r) k' (S r') eqPrf (LTES prevPrf) = lemma2 k r k' r' (sub eqPrf) pre
 lemma3 : (n, m : Nat) -> (nzPrf : NotZero m) -> (ltePrf : n * m `LT` m) -> n = 0
 lemma3 Z _ _ _ = Refl
 lemma3 (S n) Z nzPrf ltePrf = absurd $ nzPrf Refl
-lemma3 (S n) (S m) _ (LTES ltePrf) = ?wut
+lemma3 (S n) (S m) _ (LTES ltePrf) = absurd $ lteWeakenRight (n * S m) ltePrf
 
 divEqualQBase : (n, d, q, q', r, r' : Nat) -> (rPrf : r `LTE` r') -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2) =
