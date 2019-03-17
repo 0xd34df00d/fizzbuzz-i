@@ -445,7 +445,7 @@ infixl 9 .|.
 r .|. n = Remainder n r 0
 
 data OutVerified : Nat -> Output -> Type where
-  MkOutFizz     : (n : Nat) -> (prf3 : 3 .|.n)         -> (nprf5 : Not (5 .|. n)) -> OutVerified n OutFizz
+  MkOutFizz     : (n : Nat) -> (prf3 : 3 .|. n)        -> (nprf5 : Not (5 .|. n)) -> OutVerified n OutFizz
   MkOutBuzz     : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (prf5 : 5 .|. n)        -> OutVerified n OutBuzz
   MkOutFizzBuzz : (n : Nat) -> (prf3 : 3 .|. n)        -> (prf5 : 5 .|. n)        -> OutVerified n OutFizzBuzz
   MkOutNum      : (n : Nat) -> (nprf3 : Not (3 .|. n)) -> (nprf5 : Not (5 .|. n)) -> OutVerified n (OutNum n)
