@@ -413,6 +413,13 @@ divEqualQ {r} {r'} div1 div2 =
                     in sym $ divEqualQBase _ _ _ _ _ _ inv div2 div1
 
 divEqualR : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> r = r'
+divEqualR {q} {q'} {r} {r'} div1@(MkDiv eqPrf1 lessPrf1) div2@(MkDiv eqPrf2 lessPrf2) =
+  let
+    step1 : (q = q')                    = divEqualQ div1 div2
+    step2 : (q * d + r = q' * d + r')   = eqPrf1 `trans` sym eqPrf2
+    step3 : (q' * d + r = q' * d + r')  = replace {P = \q => q * d + r = q' * d + r'} step1 step2
+    step4 : (r = r')                    = plusCancelsLeft (q' * d) step3
+  in step4
 
 data Remainder : (n, d, r : Nat) -> Type where
   MkRemainder : (q : Nat) -> (prf : Div n d q r) -> Remainder n d r
