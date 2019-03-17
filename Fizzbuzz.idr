@@ -186,6 +186,9 @@ lteCongRight Refl ltePrf = ltePrf
 lteCongLeft : { l1, l2, r : Nat } -> (prf : l1 = l2) -> l1 `LTE` r -> l2 `LTE` r
 lteCongLeft Refl ltePrf = ltePrf
 
+lteWeakenRight : (k : Nat) -> l `LTE` r -> l `LTE` r + k
+lteWeakenRight {r} k prf = lteCongRight (plusCommutes k r) $ lteWeaken k prf
+
 Uninhabited (S k `LTE` Z) where
   uninhabited LTEZ impossible
   uninhabited (LTES _) impossible
