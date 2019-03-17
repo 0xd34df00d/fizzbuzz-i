@@ -6,6 +6,7 @@ import Syntax.PreorderReasoning
 
 %hide Nat
 %hide LTE
+%hide LT
 %hide minus
 
 data Nat : Type where
