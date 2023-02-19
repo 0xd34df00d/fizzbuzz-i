@@ -6,6 +6,8 @@ import Syntax.PreorderReasoning
 -- Our own Nat, because we want to be in control
 
 %hide Nat
+%hide Z
+%hide S
 %hide LTE
 %hide LT
 %hide minus
