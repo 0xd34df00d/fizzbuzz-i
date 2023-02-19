@@ -1,3 +1,4 @@
+import Decidable.Equality
 import Syntax.PreorderReasoning
 
 %default total
