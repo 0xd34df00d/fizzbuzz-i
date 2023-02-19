@@ -20,8 +20,8 @@ data Nat : Type where
 
 DecEq Nat where
   decEq Z Z = Yes Refl
-  decEq Z (S m) = No $ \Refl impossible
-  decEq (S n) Z = No $ \Refl impossible
+  decEq Z (S m) = No $ \case Refl impossible
+  decEq (S n) Z = No $ \case Refl impossible
   decEq (S n) (S m) = case decEq n m of
                            Yes Refl => Yes Refl
                            No contra => No $ \Refl => contra Refl
