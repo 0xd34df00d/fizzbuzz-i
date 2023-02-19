@@ -182,10 +182,10 @@ lteWeaken : (k : Nat) -> l `LTE` r -> l `LTE` k + r
 lteWeaken Z prf = prf
 lteWeaken (S k) prf = lteWeakenS $ lteWeaken k prf
 
-lteCongRight : { l, r1, r2 : Nat } -> (prf : r1 = r2) -> l `LTE` r1 -> l `LTE` r2
+lteCongRight : {l, r1, r2 : Nat} -> (prf : r1 = r2) -> l `LTE` r1 -> l `LTE` r2
 lteCongRight Refl ltePrf = ltePrf
 
-lteCongLeft : { l1, l2, r : Nat } -> (prf : l1 = l2) -> l1 `LTE` r -> l2 `LTE` r
+lteCongLeft : {l1, l2, r : Nat} -> (prf : l1 = l2) -> l1 `LTE` r -> l2 `LTE` r
 lteCongLeft Refl ltePrf = ltePrf
 
 lteWeakenRight : {r, l : _} -> (k : Nat) -> l `LTE` r -> l `LTE` r + k
