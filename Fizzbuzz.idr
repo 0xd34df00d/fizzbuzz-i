@@ -250,7 +250,7 @@ multLTEcancelLeft n1 n2 m notZero ltePrf =
 
 -- Safe subtraction
 
-minus : (n, m : Nat) -> { auto prf : m `LTE` n } -> Nat
+minus : (n, m : Nat) -> {auto prf : m `LTE` n} -> Nat
 minus {prf = LTEZ} n Z = n
 minus {prf = LTES prevPrf} (S n) (S m) = minus n m
 
@@ -258,7 +258,7 @@ minusSelf : (n : Nat) -> n `minus` n = 0
 minusSelf Z = Refl
 minusSelf (S n) = minusSelf n
 
-minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n } -> (prf : n `minus` m = 0) -> n = m
+minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n} -> (prf : n `minus` m = 0) -> n = m
 minusCoself {ltePrf = LTEZ} n Z prf = prf
 minusCoself {ltePrf = LTES prevPrf} (S n) (S m) prf = cong $ minusCoself n m prf
 
@@ -276,46 +276,46 @@ minusS : (n, m : Nat) -> (prf1 : m `LTE` n) -> (prf2 : m `LTE` S n) -> minus (S 
 minusS n Z LTEZ LTEZ = Refl
 minusS (S n) (S m) (LTES prevPrf1) (LTES prevPrf2) = minusS n m prevPrf1 prevPrf2
 
-minusSS : (n, m : Nat) -> { auto prf : m `LTE` n } -> minus (S n) (S m) = minus n m
+minusSS : (n, m : Nat) -> {auto prf : m `LTE` n} -> minus (S n) (S m) = minus n m
 minusSS {prf = LTEZ} n Z = Refl
 minusSS {prf = LTES prevPrf} (S n) (S m) = Refl
 
-minusPreservesLTE : (l, r, n : Nat) -> { auto minusLTEprf : n `LTE` l } -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
+minusPreservesLTE : (l, r, n : Nat) -> {auto minusLTEprf : n `LTE` l} -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
 minusPreservesLTE {minusLTEprf = LTEZ} _ _ Z ltePrf = ltePrf
 minusPreservesLTE {minusLTEprf = LTES prevPrf} (S l) r (S n) ltePrf =
   let LTES prevLTEprf = lteWeakenS ltePrf
   in minusPreservesLTE l r n prevLTEprf
 
-proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus { prf = prf1 } n m = minus { prf = prf2 } n m
+proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus {prf = prf1} n m = minus {prf = prf2} n m
 proofIrrelevanceForMinus LTEZ LTEZ = Refl
 proofIrrelevanceForMinus (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
 
-minusReflLeft : { n1, n2, m : Nat } -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) -> (prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
+minusReflLeft : {n1, n2, m : Nat} -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) -> (prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
 minusReflLeft Refl LTEZ LTEZ = Refl
 minusReflLeft Refl (LTES prev1) (LTES prev2) = minusReflLeft Refl prev1 prev2
 
-plusMinusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n + m } -> n + m `minus` m = n
+plusMinusCancelsRight : (n, m : Nat) -> {auto prf : m `LTE` n + m} -> n + m `minus` m = n
 plusMinusCancelsRight {prf = LTEZ} n Z = sym $ plusRightZero n
 plusMinusCancelsRight {prf} n (S m) =
   rewrite minusReflLeft (plusRightS n m) prf (LTES $ summandLTEsum n m)
   in plusMinusCancelsRight {prf = summandLTEsum n m} n m
 
-plusMinusCancelsLeft : (n, m : Nat) -> { auto prf : n `LTE` n + m } -> n + m `minus` n = m
+plusMinusCancelsLeft : (n, m : Nat) -> {auto prf : n `LTE` n + m} -> n + m `minus` n = m
 plusMinusCancelsLeft {prf} n m =
   rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
-  in plusMinusCancelsRight m n
+  in plusMinusCancelsRight {prf = ?wut} m n
 
-minusPlusCancelsLeft : (n, m : Nat) -> { auto prf : m `LTE` n } -> m + (n `minus` m) = n
+minusPlusCancelsLeft : (n, m : Nat) -> {auto prf : m `LTE` n} -> m + (n `minus` m) = n
 minusPlusCancelsLeft {prf = LTEZ} n Z = Refl
-minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong $ minusPlusCancelsLeft n m
+minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong S $ minusPlusCancelsLeft n m
 
-minusPlusCancelsRight : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) + m = n
+minusPlusCancelsRight : (n, m : Nat) -> {auto prf : m `LTE` n} -> (n `minus` m) + m = n
 minusPlusCancelsRight n m = plusCommutes (n `minus` m) m `trans` minusPlusCancelsLeft n m
 
-minusPlusTossS : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + S m } -> { auto prf2 : k `LTE` S n + m } -> minus (n + S m) k = minus (S n + m) k
+minusPlusTossS : (n, m, k : Nat) -> {auto prf1 : k `LTE` n + S m} -> {auto prf2 : k `LTE` S n + m} -> minus (n + S m) k = minus (S n + m) k
 minusPlusTossS {prf1} {prf2} n m k = minusReflLeft (plusRightS n m) prf1 prf2
 
-plusMinusAssoc : (n, m, k : Nat) -> { auto prf1 : k `LTE` n + m } -> { auto prf2 : k `LTE` m } -> (n + m) `minus` k = n + (m `minus` k)
+plusMinusAssoc : (n, m, k : Nat) -> {auto prf1 : k `LTE` n + m} -> {auto prf2 : k `LTE` m} -> (n + m) `minus` k = n + (m `minus` k)
 plusMinusAssoc {prf1 = LTEZ} {prf2 = LTEZ} n m Z = Refl
 plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} Z (S m) (S k) = proofIrrelevanceForMinus prevPrf1 prevPrf2
 plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} (S n) (S m) (S k) =
@@ -327,7 +327,7 @@ plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} (S n) (S m) (S k) =
   (S ((n + m) `minus` k)) ={ cong $ plusMinusAssoc n m k }=
   (S (n + (m `minus` k))) QED
 
-timesMinusDistrRight : (n1, n2, m : Nat) -> { auto ltePrf1 : n2 * m `LTE` n1 * m } -> { auto ltePrf2 : n2 `LTE` n1 } -> n1 * m `minus` n2 * m = (n1 `minus` n2) * m
+timesMinusDistrRight : (n1, n2, m : Nat) -> {auto ltePrf1 : n2 * m `LTE` n1 * m} -> {auto ltePrf2 : n2 `LTE` n1} -> n1 * m `minus` n2 * m = (n1 `minus` n2) * m
 timesMinusDistrRight {ltePrf1} {ltePrf2} n1 n2 m =
   let
     step1   : (((n1 `minus` n2) + n2) * m = (n1 `minus` n2) * m + n2 * m)            = timesDistrRight (n1 `minus` n2) n2 m
@@ -365,15 +365,15 @@ WellFounded LTChecked where
                  let Access rec = wellFounded {rel = LTChecked} x
                  in rec y' $ MkLTChecked $ lteTrans _ _ _ prf prevPrf
 
-minusIsLTE : (n, m : Nat) -> { auto prf : m `LTE` n } -> (n `minus` m) `LTE` n
+minusIsLTE : (n, m : Nat) -> {auto prf : m `LTE` n} -> (n `minus` m) `LTE` n
 minusIsLTE {prf = LTEZ} n Z = lteRefl n
 minusIsLTE {prf = LTES prevPrf} (S n) (S m) = lteWeakenS $ minusIsLTE n m
 
-minusNonZeroIsLT : (n, m : Nat) -> { auto prf : m `LTE` n } -> (notZero : NotZero m) -> (n `minus` m) `LT` n
+minusNonZeroIsLT : (n, m : Nat) -> {auto prf : m `LTE` n} -> (notZero : NotZero m) -> (n `minus` m) `LT` n
 minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
 minusNonZeroIsLT {prf = LTES prevPrf} (S r) (S m) notZero = LTES $ minusIsLTE r m
 
-divide : (n, d : Nat) -> { auto notZero : NotZero d } -> (q ** r ** Div n d q r)
+divide : (n, d : Nat) -> {auto notZero : NotZero d} -> (q ** r ** Div n d q r)
 divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
   where
     st : (x : Nat) -> ((y : Nat) -> LTChecked y x -> (q ** r ** Div y d q r)) -> (q ** r ** Div x d q r)
@@ -397,7 +397,7 @@ divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
               ((d + q * d) + r) ={ Refl }=
               ((S q) * d + r) QED
 
-lemma1 : (k, r, k', r' : Nat) -> { auto ltePrf : r `LTE` r' } -> k' + r' = k + r -> k' + (r' `minus` r) = k
+lemma1 : (k, r, k', r' : Nat) -> {auto ltePrf : r `LTE` r'} -> k' + r' = k + r -> k' + (r' `minus` r) = k
 lemma1 k r k' r' {ltePrf} eqPrf =
   let r_lte_kr' = lteWeaken k ltePrf
       r_lte_kr'' = lteWeaken k' ltePrf
