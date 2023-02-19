@@ -305,6 +305,7 @@ plusMinusCancelsLeft {prf} n m =
   rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
   in plusMinusCancelsRight {prf = ?wut} m n
 
+{-
 minusPlusCancelsLeft : (n, m : Nat) -> {auto prf : m `LTE` n} -> m + (n `minus` m) = n
 minusPlusCancelsLeft {prf = LTEZ} n Z = Refl
 minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong S $ minusPlusCancelsLeft n m
@@ -498,3 +499,4 @@ fizzbuzz n with (decRem n 3 0 sNotZero, decRem n 5 0 sNotZero)
   | (Yes div3, No ndiv5) = (_ ** MkOutFizz n div3 ndiv5)
   | (No ndiv3, Yes div5) = (_ ** MkOutBuzz n ndiv3 div5)
   | (No ndiv3, No ndiv5) = (_ ** MkOutNum n ndiv3 ndiv5)
+  -}
