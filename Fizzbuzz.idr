@@ -243,8 +243,8 @@ multLTEcancelRight (S n1) (S n2) (S m) notZero (LTES prevPrf) =
 multLTEcancelLeft : (n1, n2, m : Nat) -> (notZero : NotZero m) -> (ltePrf : m * n1 `LTE` m * n2) -> n1 `LTE` n2
 multLTEcancelLeft n1 n2 m notZero ltePrf =
   multLTEcancelRight _ _ _ notZero $
-    replace (timesCommutes m n2) $
-    replace {P = (`LTE` m * n2)} (timesCommutes m n1) ltePrf
+    replace {p = (n1 * m `LTE`)} (timesCommutes m n2) $
+    replace {p = (`LTE` m * n2)} (timesCommutes m n1) ltePrf
 
 -- Safe subtraction
 
