@@ -117,13 +117,13 @@ timesDistrLeft n m (S k) = rewrite timesDistrLeft n m k in
                            rewrite shuffleLemma n m (k * n) (k * m) in Refl
   where
     shuffleLemma : (n, m, kn, km : Nat) -> (n + m) + (kn + km) = (n + kn) + (m + km)
-    shuffleLemma n m kn km =
-      ((n + m) + (kn + km)) ={ plusAssocSym n m (kn + km) }=
-      (n + (m + (kn + km))) ={ cong $ plusAssoc m kn km }=
-      (n + ((m + kn) + km)) ={ cong {f = \x => n + (x + km)} $ plusCommutes m kn }=
-      (n + ((kn + m) + km)) ={ cong $ plusAssocSym kn m km }=
-      (n + (kn + (m + km))) ={ plusAssoc n kn (m + km) }=
-      ((n + kn) + (m + km)) QED
+    shuffleLemma n m kn km = Calc $
+      |~ ((n + m) + (kn + km))
+      ~~ (n + (m + (kn + km))) ...( plusAssocSym n m (kn + km) )
+      ~~ (n + ((m + kn) + km)) ...( cong (n +) $ plusAssoc m kn km )
+      ~~ (n + ((kn + m) + km)) ...( cong (\x => n + (x + km)) $ plusCommutes m kn )
+      ~~ (n + (kn + (m + km))) ...( cong (n +) $ plusAssocSym kn m km )
+      ~~ ((n + kn) + (m + km)) ...( plusAssoc n kn (m + km) )
 
 timesDistrRight : (n, m, k : Nat) -> (n + m) * k = n * k + m * k
 timesDistrRight n m k = rewrite timesCommutes (n + m) k in
