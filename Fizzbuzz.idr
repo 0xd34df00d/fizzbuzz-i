@@ -8,8 +8,6 @@ import Syntax.PreorderReasoning
 %hide Nat
 %hide Z
 %hide S
-%hide LTE
-%hide LT
 %hide minus
 
 data Nat : Type where
