@@ -58,11 +58,11 @@ sInjective Refl = Refl
 
 plusRightZero : (n : Nat) -> n = n + Z
 plusRightZero Z = Refl
-plusRightZero (S n) = cong $ plusRightZero n
+plusRightZero (S n) = cong S $ plusRightZero n
 
 plusRightS : (n, m : Nat) -> n + S m = S (n + m)
 plusRightS Z m = Refl
-plusRightS (S n) m = cong $ plusRightS n m
+plusRightS (S n) m = cong S $ plusRightS n m
 
 plusCommutes : (n, m : Nat) -> n + m = m + n
 plusCommutes Z m = plusRightZero m
@@ -70,7 +70,7 @@ plusCommutes (S n) m = rewrite plusCommutes n m in sym $ plusRightS m n
 
 plusAssoc : (n, m, k : Nat) -> n + (m + k) = (n + m) + k
 plusAssoc Z m k = Refl
-plusAssoc (S n) m k = cong $ plusAssoc n m k
+plusAssoc (S n) m k = cong S $ plusAssoc n m k
 
 plusAssocSym : (n, m, k : Nat) -> (n + m) + k = n + (m + k)
 plusAssocSym n m k = sym $ plusAssoc n m k
@@ -92,7 +92,7 @@ timesLeftOne n = plusRightZero n
 
 timesRightOne : (n : Nat) -> n = n * 1
 timesRightOne Z = Refl
-timesRightOne (S n) = rewrite timesRightOne n in Refl
+timesRightOne (S n) = cong S $ timesRightOne n
 
 timesRightZero : (n : Nat) -> Z = n * Z
 timesRightZero Z = Refl
@@ -258,7 +258,7 @@ minusSelf (S n) = minusSelf n
 
 minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n} -> (prf : n `minus` m = 0) -> n = m
 minusCoself {ltePrf = LTEZ} n Z prf = prf
-minusCoself {ltePrf = LTES prevPrf} (S n) (S m) prf = cong $ minusCoself n m prf
+minusCoself {ltePrf = LTES prevPrf} (S n) (S m) prf = cong S $ minusCoself n m prf
 
 minusSLeftCommutes : (n, m : Nat) -> (prf : m `LTE` n) -> S n `minus` m = S (n `minus` m)
 minusSLeftCommutes n Z LTEZ = Refl
