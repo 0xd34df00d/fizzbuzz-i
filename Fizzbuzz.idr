@@ -284,9 +284,9 @@ minusPreservesLTE {minusLTEprf = LTES prevPrf} (S l) r (S n) ltePrf =
   let LTES prevLTEprf = lteWeakenS ltePrf
   in minusPreservesLTE l r n prevLTEprf
 
-proofIrrelevanceForMinus : (prf1, prf2 : m `LTE` n) -> minus {prf = prf1} n m = minus {prf = prf2} n m
-proofIrrelevanceForMinus LTEZ LTEZ = Refl
-proofIrrelevanceForMinus (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
+proofIrrelevanceForMinus : {m : _} -> (prf1, prf2 : m `LTE` n) -> minus {prf = prf1} n m = minus {prf = prf2} n m
+proofIrrelevanceForMinus {m = Z} LTEZ LTEZ = Refl
+proofIrrelevanceForMinus {m = S m} (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
 
 minusReflLeft : {n1, n2, m : Nat} -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) -> (prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
 minusReflLeft Refl LTEZ LTEZ = Refl
