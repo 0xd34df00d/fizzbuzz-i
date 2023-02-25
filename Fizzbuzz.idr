@@ -288,7 +288,7 @@ proofIrrelevanceForMinus : {m : _} -> (prf1, prf2 : m `LTE` n) -> minus {prf = p
 proofIrrelevanceForMinus {m = Z} LTEZ LTEZ = Refl
 proofIrrelevanceForMinus {m = S m} (LTES prevPrf1) (LTES prevPrf2) = proofIrrelevanceForMinus prevPrf1 prevPrf2
 
-minusReflLeft : {n1, n2, m : Nat} -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) -> (prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
+minusReflLeft : {n1, n2, m : Nat} -> (0 prf : n1 = n2) -> (0 prf_n1 : m `LTE` n1) -> (0 prf_n2 : m `LTE` n2) -> n1 `minus` m = n2 `minus` m
 minusReflLeft Refl LTEZ LTEZ = Refl
 minusReflLeft Refl (LTES prev1) (LTES prev2) = minusReflLeft Refl prev1 prev2
 
@@ -303,14 +303,14 @@ plusMinusCancelsLeft n m with (plusCommutes n m) | (n + m)
   _ | Refl | _ = plusMinusCancelsRight m n
 
 {-
-minusPlusCancelsLeft : (n, m : Nat) -> {auto prf : m `LTE` n} -> m + (n `minus` m) = n
+minusPlusCancelsLeft : (n, m : Nat) -> {auto 0 prf : m `LTE` n} -> m + (n `minus` m) = n
 minusPlusCancelsLeft {prf = LTEZ} n Z = Refl
 minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong S $ minusPlusCancelsLeft n m
 
-minusPlusCancelsRight : (n, m : Nat) -> {auto prf : m `LTE` n} -> (n `minus` m) + m = n
+minusPlusCancelsRight : (n, m : Nat) -> {auto 0 prf : m `LTE` n} -> (n `minus` m) + m = n
 minusPlusCancelsRight n m = plusCommutes (n `minus` m) m `trans` minusPlusCancelsLeft n m
 
-minusPlusTossS : (n, m, k : Nat) -> {auto prf1 : k `LTE` n + S m} -> {auto prf2 : k `LTE` S n + m} -> minus (n + S m) k = minus (S n + m) k
+minusPlusTossS : (n, m, k : Nat) -> {auto 0 prf1 : k `LTE` n + S m} -> {auto 0 prf2 : k `LTE` S n + m} -> minus (n + S m) k = minus (S n + m) k
 minusPlusTossS {prf1} {prf2} n m k = minusReflLeft (plusRightS n m) prf1 prf2
 
 plusMinusAssoc : (n, m, k : Nat) -> {auto prf1 : k `LTE` n + m} -> {auto prf2 : k `LTE` m} -> (n + m) `minus` k = n + (m `minus` k)
