@@ -302,7 +302,6 @@ plusMinusCancelsLeft : (n, m : Nat) -> {auto 0 prf : n `LTE` n + m} -> n + m `mi
 plusMinusCancelsLeft n m with (plusCommutes n m) | (n + m)
   _ | Refl | _ = plusMinusCancelsRight m n
 
-{-
 minusPlusCancelsLeft : (n, m : Nat) -> {auto 0 prf : m `LTE` n} -> m + (n `minus` m) = n
 minusPlusCancelsLeft {prf = LTEZ} n Z = Refl
 minusPlusCancelsLeft {prf = LTES prevPrf} (S n) (S m) = cong S $ minusPlusCancelsLeft n m
@@ -319,12 +318,13 @@ plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} Z (S m) (S k) = pro
 plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} (S n) (S m) (S k) =
   let l_lte_nr = lteWeaken n prevPrf2
       l_lte_S_nr = lteWeakenS l_lte_nr
-  in
-  ((n + S m) `minus` k)   ={ minusPlusTossS n m k }=
-  ((S n + m) `minus` k)   ={ minusS (n + m) k (lteWeaken n prevPrf2) l_lte_S_nr }=
-  (S ((n + m) `minus` k)) ={ cong $ plusMinusAssoc n m k }=
-  (S (n + (m `minus` k))) QED
+  in Calc $
+  |~ ((n + S m) `minus` k)
+  ~~ ((S n + m) `minus` k)   ...( minusPlusTossS n m k )
+  ~~ (S ((n + m) `minus` k)) ...( minusS (n + m) k l_lte_nr l_lte_S_nr )
+  ~~ (S (n + (m `minus` k))) ...( cong S $ plusMinusAssoc n m k )
 
+{-
 timesMinusDistrRight : (n1, n2, m : Nat) -> {auto ltePrf1 : n2 * m `LTE` n1 * m} -> {auto ltePrf2 : n2 `LTE` n1} -> n1 * m `minus` n2 * m = (n1 `minus` n2) * m
 timesMinusDistrRight {ltePrf1} {ltePrf2} n1 n2 m =
   let
