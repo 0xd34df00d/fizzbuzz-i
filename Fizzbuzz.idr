@@ -395,18 +395,17 @@ divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
               ~~ ((d + q * d) + r) ...( cong (+ r) $ plusCommutes (q * d) d )
               ~~ ((S q) * d + r)   ...( Refl )
 
-{-
 lemma1 : (k, r, k', r' : Nat) -> {auto ltePrf : r `LTE` r'} -> k' + r' = k + r -> k' + (r' `minus` r) = k
 lemma1 k r k' r' {ltePrf} eqPrf =
   let r_lte_kr' = lteWeaken k ltePrf
       r_lte_kr'' = lteWeaken k' ltePrf
       r_lte_kr = summandLTEsum k r
-  in
-  (k' + (r' `minus` r)) ={ sym $ plusMinusAssoc k' r' r }=
-  ((k' + r') `minus` r) ={ minusReflLeft eqPrf r_lte_kr'' r_lte_kr }=
-  ((k + r) `minus` r) ={ sub k r r_lte_kr }=
-  (k + Z) ={ sym $ plusRightZero k }=
-  (k) QED
+  in Calc $
+  |~ (k' + (r' `minus` r))
+  ~~ ((k' + r') `minus` r) ...( sym $ plusMinusAssoc k' r' r )
+  ~~ ((k + r) `minus` r)   ...( minusReflLeft eqPrf r_lte_kr'' r_lte_kr )
+  ~~ (k + Z)               ...( sub k r r_lte_kr )
+  ~~ (k)                   ...( sym $ plusRightZero k )
   where
     sub : (k, r : Nat) -> (prf : r `LTE` k + r) -> (k + r) `minus` r = k + Z
     sub k r prf = rewrite plusMinusAssoc k r r in rewrite minusSelf r in Refl
@@ -421,10 +420,10 @@ lemma2 k Z k' r' eqPrf LTEZ = lemma_k_less_summands k k' r' $ trans (plusRightZe
 lemma2 k (S r) k' (S r') eqPrf (LTES prevPrf) = lemma2 k r k' r' (sub eqPrf) prevPrf
   where
     sub : (eqPrf : k + S r = k' + S r') -> k + r = k' + r'
-    sub prf = sInjective $ (S (k + r)) ={ sym $ plusRightS k r }=
-                           (k + S r) ={ eqPrf }=
-                           (k' + S r') ={ plusRightS k' r' }=
-                           (S (k' + r')) QED
+    sub prf = sInjective $ Calc $ |~ (S (k + r))
+                                  ~~ (k + S r)     ...( sym $ plusRightS k r )
+                                  ~~ (k' + S r')   ...( eqPrf )
+                                  ~~ (S (k' + r')) ...( plusRightS k' r' )
 
 lemma3 : (n, m : Nat) -> (nzPrf : NotZero m) -> (ltePrf : n * m `LT` m) -> n = 0
 lemma3 Z _ _ _ = Refl
@@ -445,11 +444,12 @@ divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2)
     step5    : (r' `minus` r = (q `minus` q') * d)                               = step4 `trans` timesMinusDistrRight q q' d
     step6    : (((S r') `minus` r) `LTE` d)                                      = minusPreservesLTE (S r') d r lessPrf2
     step7    : ((r' `minus` r) `LT` d)                                           = lteCongLeft (minusSLeftCommutes _ _ rPrf) step6
-    step8    : (((q `minus` q') * d) `LT` d)                                     = lteCongLeft (cong step5) step7
+    step8    : (((q `minus` q') * d) `LT` d)                                     = lteCongLeft (cong S step5) step7
     step9    : ((q `minus` q') = 0)                                              = lemma3 _ _ dNonZero step8
     step10   : (q = q')                                                          = minusCoself _ _ step9
   in step10
 
+{-
 divEqualQ : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQ {r} {r'} div1 div2 =
   case r `lte` r' of
