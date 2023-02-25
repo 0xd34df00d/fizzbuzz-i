@@ -371,16 +371,15 @@ minusNonZeroIsLT : (n, m : Nat) -> {auto prf : m `LTE` n} -> (notZero : NotZero 
 minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
 minusNonZeroIsLT {prf = LTES prevPrf} (S r) (S m) notZero = LTES $ minusIsLTE r m
 
-{-
 divide : (n, d : Nat) -> {auto notZero : NotZero d} -> (q ** r ** Div n d q r)
 divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
   where
     st : (x : Nat) -> ((y : Nat) -> LTChecked y x -> (q ** r ** Div y d q r)) -> (q ** r ** Div x d q r)
     st x next with (x `lt` d)
-      | Yes lessPrf = (0 ** x ** MkDiv Refl lessPrf)
-      | No contra = let LTES dnPrf = invertLte _ _ contra
-                        (q ** r ** MkDiv eqPrf lessPrf) = next (x `minus` d) (MkLTChecked $ minusNonZeroIsLT x d notZero)
-                    in (S q ** r ** MkDiv (stepEqPrf q r dnPrf eqPrf) lessPrf)
+      _ | Yes lessPrf = (0 ** x ** MkDiv Refl lessPrf)
+      _ | No contra = let LTES dnPrf = invertLte _ _ contra
+                          (q ** r ** MkDiv eqPrf lessPrf) = next (x `minus` d) (MkLTChecked $ minusNonZeroIsLT x d notZero)
+                       in (S q ** r ** MkDiv (stepEqPrf q r dnPrf eqPrf) lessPrf)
       where
         stepEqPrf : (q, r : Nat) -> (dnPrf : LTE d x) -> (eqPrf : q * d + r = minus x d) -> (S q) * d + r = x
         stepEqPrf q r dnPrf eqPrf = rewrite sym $ leftPart in
@@ -388,14 +387,15 @@ divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
                                     plusRightPreservesEq _ _ d eqPrf
           where
             leftPart : (q * d + r) + d = (S q) * d + r
-            leftPart =
-              ((q * d + r) + d) ={ plusAssocSym (q * d) r d }=
-              (q * d + (r + d)) ={ cong $ plusCommutes r d }=
-              (q * d + (d + r)) ={ plusAssoc (q * d) d r }=
-              ((q * d + d) + r) ={ cong {f = \x => x + r} $ plusCommutes (q * d) d }=
-              ((d + q * d) + r) ={ Refl }=
-              ((S q) * d + r) QED
+            leftPart = Calc $
+              |~ ((q * d + r) + d)
+              ~~ (q * d + (r + d)) ...( plusAssocSym (q * d) r d )
+              ~~ (q * d + (d + r)) ...( cong (q * d +) $ plusCommutes r d )
+              ~~ ((q * d + d) + r) ...( plusAssoc (q * d) d r )
+              ~~ ((d + q * d) + r) ...( cong (+ r) $ plusCommutes (q * d) d )
+              ~~ ((S q) * d + r)   ...( Refl )
 
+{-
 lemma1 : (k, r, k', r' : Nat) -> {auto ltePrf : r `LTE` r'} -> k' + r' = k + r -> k' + (r' `minus` r) = k
 lemma1 k r k' r' {ltePrf} eqPrf =
   let r_lte_kr' = lteWeaken k ltePrf
