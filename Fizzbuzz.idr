@@ -248,7 +248,7 @@ multLTEcancelLeft n1 n2 m notZero ltePrf =
 
 -- Safe subtraction
 
-minus : (n, m : Nat) -> {auto prf : m `LTE` n} -> Nat
+minus : (n, m : Nat) -> {auto 0 prf : m `LTE` n} -> Nat
 minus {prf = LTEZ} n Z = n
 minus {prf = LTES prevPrf} (S n) (S m) = minus n m
 
@@ -256,7 +256,7 @@ minusSelf : (n : Nat) -> n `minus` n = 0
 minusSelf Z = Refl
 minusSelf (S n) = minusSelf n
 
-minusCoself : (n, m : Nat) -> {auto ltePrf : m `LTE` n} -> (prf : n `minus` m = 0) -> n = m
+minusCoself : (n, m : Nat) -> {auto 0 ltePrf : m `LTE` n} -> (prf : n `minus` m = 0) -> n = m
 minusCoself {ltePrf = LTEZ} n Z prf = prf
 minusCoself {ltePrf = LTES prevPrf} (S n) (S m) prf = cong S $ minusCoself n m prf
 
@@ -274,11 +274,11 @@ minusS : (n, m : Nat) -> (prf1 : m `LTE` n) -> (prf2 : m `LTE` S n) -> minus (S 
 minusS n Z LTEZ LTEZ = Refl
 minusS (S n) (S m) (LTES prevPrf1) (LTES prevPrf2) = minusS n m prevPrf1 prevPrf2
 
-minusSS : (n, m : Nat) -> {auto prf : m `LTE` n} -> minus (S n) (S m) = minus n m
+minusSS : (n, m : Nat) -> {auto 0 prf : m `LTE` n} -> minus (S n) (S m) = minus n m
 minusSS {prf = LTEZ} n Z = Refl
 minusSS {prf = LTES prevPrf} (S n) (S m) = Refl
 
-minusPreservesLTE : (l, r, n : Nat) -> {auto minusLTEprf : n `LTE` l} -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
+minusPreservesLTE : (l, r, n : Nat) -> {auto 0 minusLTEprf : n `LTE` l} -> (ltePrf : l `LTE` r) -> (l `minus` n) `LTE` r
 minusPreservesLTE {minusLTEprf = LTEZ} _ _ Z ltePrf = ltePrf
 minusPreservesLTE {minusLTEprf = LTES prevPrf} (S l) r (S n) ltePrf =
   let LTES prevLTEprf = lteWeakenS ltePrf
@@ -292,13 +292,13 @@ minusReflLeft : {n1, n2, m : Nat} -> (prf : n1 = n2) -> (prf_n1 : m `LTE` n1) ->
 minusReflLeft Refl LTEZ LTEZ = Refl
 minusReflLeft Refl (LTES prev1) (LTES prev2) = minusReflLeft Refl prev1 prev2
 
-plusMinusCancelsRight : (n, m : Nat) -> {auto prf : m `LTE` n + m} -> n + m `minus` m = n
+plusMinusCancelsRight : (n, m : Nat) -> {auto 0 prf : m `LTE` n + m} -> n + m `minus` m = n
 plusMinusCancelsRight {prf = LTEZ} n Z = sym $ plusRightZero n
 plusMinusCancelsRight {prf} n (S m) =
   rewrite minusReflLeft (plusRightS n m) prf (LTES $ summandLTEsum n m)
   in plusMinusCancelsRight {prf = summandLTEsum n m} n m
 
-plusMinusCancelsLeft : (n, m : Nat) -> {auto prf : n `LTE` n + m} -> n + m `minus` n = m
+plusMinusCancelsLeft : (n, m : Nat) -> {auto 0 prf : n `LTE` n + m} -> n + m `minus` n = m
 plusMinusCancelsLeft {prf} n m =
   rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
   in plusMinusCancelsRight {prf = ?wut} m n
