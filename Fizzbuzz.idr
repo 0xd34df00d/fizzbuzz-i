@@ -299,9 +299,8 @@ plusMinusCancelsRight {prf} n (S m) =
   in plusMinusCancelsRight {prf = summandLTEsum n m} n m
 
 plusMinusCancelsLeft : (n, m : Nat) -> {auto 0 prf : n `LTE` n + m} -> n + m `minus` n = m
-plusMinusCancelsLeft {prf} n m =
-  rewrite minusReflLeft (plusCommutes n m) prf (summandLTEsum m n)
-  in plusMinusCancelsRight {prf = ?wut} m n
+plusMinusCancelsLeft n m with (plusCommutes n m) | (n + m)
+  _ | Refl | _ = plusMinusCancelsRight m n
 
 {-
 minusPlusCancelsLeft : (n, m : Nat) -> {auto prf : m `LTE` n} -> m + (n `minus` m) = n
