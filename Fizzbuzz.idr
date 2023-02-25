@@ -1,3 +1,4 @@
+import Control.WellFounded
 import Decidable.Equality
 import Syntax.PreorderReasoning
 
@@ -324,12 +325,11 @@ plusMinusAssoc {prf1 = LTES prevPrf1} {prf2 = LTES prevPrf2} (S n) (S m) (S k) =
   ~~ (S ((n + m) `minus` k)) ...( minusS (n + m) k l_lte_nr l_lte_S_nr )
   ~~ (S (n + (m `minus` k))) ...( cong S $ plusMinusAssoc n m k )
 
-{-
 timesMinusDistrRight : (n1, n2, m : Nat) -> {auto ltePrf1 : n2 * m `LTE` n1 * m} -> {auto ltePrf2 : n2 `LTE` n1} -> n1 * m `minus` n2 * m = (n1 `minus` n2) * m
 timesMinusDistrRight {ltePrf1} {ltePrf2} n1 n2 m =
   let
     step1   : (((n1 `minus` n2) + n2) * m = (n1 `minus` n2) * m + n2 * m)            = timesDistrRight (n1 `minus` n2) n2 m
-    step2   : (((n1 `minus` n2) + n2) * m = n1 * m)                                  = cong {f = (* m)} $ minusPlusCancelsRight n1 n2
+    step2   : (((n1 `minus` n2) + n2) * m = n1 * m)                                  = cong (* m) $ minusPlusCancelsRight n1 n2
     step3   : (n1 * m = (n1 `minus` n2) * m + n2 * m)                                = sym step2 `trans` step1
     ltePrf3 : (n2 * m `LTE` (n1 `minus` n2) * m + n2 * m)                            = summandLTEsum ((n1 `minus` n2) * m) (n2 * m)
     step4   : ((n1 `minus` n2) * m + n2 * m `minus` n2 * m = (n1 `minus` n2) * m)    = plusMinusCancelsRight ((n1 `minus` n2) * m) (n2 * m)
@@ -352,7 +352,7 @@ zeroIsAccessible = Access f
     f _ (MkLTChecked LTEZ) impossible
     f _ (MkLTChecked (LTES _)) impossible
 
-WellFounded LTChecked where
+WellFounded Nat LTChecked where
   wellFounded Z = zeroIsAccessible
   wellFounded (S x) = Access f
     where
@@ -371,6 +371,7 @@ minusNonZeroIsLT : (n, m : Nat) -> {auto prf : m `LTE` n} -> (notZero : NotZero 
 minusNonZeroIsLT n Z notZero = absurd $ notZero Refl
 minusNonZeroIsLT {prf = LTES prevPrf} (S r) (S m) notZero = LTES $ minusIsLTE r m
 
+{-
 divide : (n, d : Nat) -> {auto notZero : NotZero d} -> (q ** r ** Div n d q r)
 divide {notZero} n d = wfInd {P = \n' => (q ** r ** Div n' d q r)} st n
   where
