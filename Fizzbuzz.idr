@@ -450,14 +450,14 @@ divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2)
   in step10
 
 {-
-divEqualQ : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
+divEqualQ : {r, r', n, d, q, q' : _} -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQ {r} {r'} div1 div2 =
   case r `lte` r' of
        Yes prf => divEqualQBase _ _ _ _ _ _ prf div1 div2
        No contra => let inv = ltWeakenLte _ _ $ invertLte _ _ contra
                     in sym $ divEqualQBase _ _ _ _ _ _ inv div2 div1
 
-divEqualR : (div1 : Div n d q r) -> (div2 : Div n d q' r') -> r = r'
+divEqualR : {r, r', n, d, q, q' : _} -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> r = r'
 divEqualR {q} {q'} {r} {r'} div1@(MkDiv eqPrf1 lessPrf1) div2@(MkDiv eqPrf2 lessPrf2) =
   let
     step1 : (q = q')                    = divEqualQ div1 div2
