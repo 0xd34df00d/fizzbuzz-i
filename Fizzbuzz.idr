@@ -449,7 +449,6 @@ divEqualQBase n d q q' r r' rPrf (MkDiv eqPrf1 lessPrf1) (MkDiv eqPrf2 lessPrf2)
     step10   : (q = q')                                                          = minusCoself _ _ step9
   in step10
 
-{-
 divEqualQ : {r, r', n, d, q, q' : _} -> (div1 : Div n d q r) -> (div2 : Div n d q' r') -> q = q'
 divEqualQ {r} {r'} div1 div2 =
   case r `lte` r' of
@@ -462,7 +461,7 @@ divEqualR {q} {q'} {r} {r'} div1@(MkDiv eqPrf1 lessPrf1) div2@(MkDiv eqPrf2 less
   let
     step1 : (q = q')                    = divEqualQ div1 div2
     step2 : (q * d + r = q' * d + r')   = eqPrf1 `trans` sym eqPrf2
-    step3 : (q' * d + r = q' * d + r')  = replace {P = \q => q * d + r = q' * d + r'} step1 step2
+    step3 : (q' * d + r = q' * d + r')  = replace {p = \q => q * d + r = q' * d + r'} step1 step2
     step4 : (r = r')                    = plusCancelsLeft (q' * d) step3
   in step4
 
@@ -493,8 +492,7 @@ data OutVerified : Nat -> Output -> Type where
 
 fizzbuzz : (n : Nat) -> (out ** OutVerified n out)
 fizzbuzz n with (decRem n 3 0 sNotZero, decRem n 5 0 sNotZero)
-  | (Yes div3, Yes div5) = (_ ** MkOutFizzBuzz n div3 div5)
-  | (Yes div3, No ndiv5) = (_ ** MkOutFizz n div3 ndiv5)
-  | (No ndiv3, Yes div5) = (_ ** MkOutBuzz n ndiv3 div5)
-  | (No ndiv3, No ndiv5) = (_ ** MkOutNum n ndiv3 ndiv5)
-  -}
+  _ | (Yes div3, Yes div5) = (_ ** MkOutFizzBuzz n div3 div5)
+  _ | (Yes div3, No ndiv5) = (_ ** MkOutFizz n div3 ndiv5)
+  _ | (No ndiv3, Yes div5) = (_ ** MkOutBuzz n ndiv3 div5)
+  _ | (No ndiv3, No ndiv5) = (_ ** MkOutNum n ndiv3 ndiv5)
